@@ -22,10 +22,18 @@ ros2_create_ament_pkg() {
     #   src/<pkg>_node.hpp/.cpp          — local node (not exported)
     #   src/<pkg>_node_main.cpp          — binary entrypoint
 
-    # 1. CMakeLists.txt
+    # 1. CMakeLists.txt — parametric header (old style) + ament library/binary blocks
     cat << 'EOF' > "$TARGET_DIR/CMakeLists.txt"
 cmake_minimum_required(VERSION 3.20)
-project({package_name})
+
+set(PROJECT_NAME {package_name})
+project(${PROJECT_NAME})
+
+set(${PROJECT_NAME}_MAJOR_VERSION 0)
+set(${PROJECT_NAME}_MINOR_VERSION 0)
+set(${PROJECT_NAME}_PATCH_VERSION 0)
+set(${PROJECT_NAME}_VERSION
+  "${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_VERSION}")
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Werror -Wpedantic)
@@ -43,7 +51,7 @@ find_package(OpenCV REQUIRED)
 # https://ros2-tutorial.readthedocs.io/en/latest/cpp/cpp_library.html
 # Single shared library ${PROJECT_NAME} = everything this package exports.
 add_library(${PROJECT_NAME} SHARED
-    src/{package_name}.cpp
+    src/${PROJECT_NAME}.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -88,11 +96,11 @@ install(
 # CPP Binary Block [BEGIN] #
 # vvvvvvvvvvvvvvvvvvvvvvvv #
 # Local node that uses the exported library; not part of the library itself.
-set(RCLCPP_LOCAL_BINARY_NAME {package_name}_node)
+set(RCLCPP_LOCAL_BINARY_NAME ${PROJECT_NAME}_node)
 
 add_executable(${RCLCPP_LOCAL_BINARY_NAME}
-    src/{package_name}_node_main.cpp
-    src/{package_name}_node.cpp
+    src/${PROJECT_NAME}_node_main.cpp
+    src/${PROJECT_NAME}_node.cpp
 )
 
 ament_target_dependencies(${RCLCPP_LOCAL_BINARY_NAME}
