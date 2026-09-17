@@ -103,14 +103,11 @@ add_executable(${RCLCPP_LOCAL_BINARY_NAME}
     src/${PROJECT_NAME}_node.cpp
 )
 
-ament_target_dependencies(${RCLCPP_LOCAL_BINARY_NAME}
-    rclcpp
-    std_msgs
-    sensor_msgs
-)
-
 target_link_libraries(${RCLCPP_LOCAL_BINARY_NAME}
     ${PROJECT_NAME}
+    rclcpp::rclcpp
+    ${std_msgs_TARGETS}
+    ${sensor_msgs_TARGETS}
 )
 
 target_include_directories(${RCLCPP_LOCAL_BINARY_NAME} PUBLIC
